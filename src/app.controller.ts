@@ -4,23 +4,19 @@ import { ApiParam, ApiQuery } from '@nestjs/swagger';
 import _ from 'lodash';
 import { mapObjectSkip } from 'map-obj';
 import {
+  excludeKeys,
   getFaker,
+  getFakerValue,
   mapObjectDeep,
-  pkg,
   serializeValue,
   supportedLocales,
   type Locale,
   type Locales,
   type Template,
 } from './shared';
-const fakerKey = 'faker'; // self reference
 
 @Controller()
 export class AppController {
-  @Get('versions') getVersions() {
-    return _.pick(pkg, ['dependencies', 'devDependencies']);
-  }
-
   @Get('locales') getLocales(): Locales {
     return supportedLocales;
   }
@@ -33,8 +29,7 @@ export class AppController {
   getLocale(@Param('locale') locale: Locale) {
     const resolveFakerValues = (faker: Faker | any) =>
       mapObjectDeep(faker, (key, value) => {
-        if (_.isPlainObject(value) && key !== fakerKey)
-          value = resolveFakerValues(value);
+        if (_.isPlainObject(value)) value = resolveFakerValues(value);
 
         if (_.isFunction(value))
           try {
@@ -47,10 +42,23 @@ export class AppController {
       });
 
     return mapObjectDeep(resolveFakerValues(getFaker(locale)), (key, value) => {
-      if (key === fakerKey) return mapObjectSkip;
+      if (excludeKeys.includes(key)) return mapObjectSkip;
 
       return [key, serializeValue(value)];
     });
+  }
+
+  @Get('api/:locale/:path')
+  @ApiParam({
+    name: 'locale',
+    enum: supportedLocales,
+  })
+  @ApiParam({
+    name: 'path',
+    example: 'color.human',
+  })
+  getAPI(@Param('locale') locale: Locale, @Param('path') path: string) {
+    return getFakerValue(getFaker(locale), path);
   }
 
   @Get('template/:locale/:count')
@@ -87,12 +95,44 @@ export class AppController {
     example: 'internet.username',
   })
   @ApiQuery({
+    name: 'language',
+    example: 'location.language',
+  })
+  @ApiQuery({
+    name: 'favorite[animalType]',
+    example: 'animal.type',
+  })
+  @ApiQuery({
+    name: 'favorite[book]',
+    example: 'book.title',
+  })
+  @ApiQuery({
+    name: 'favorite[country]',
+    example: 'location.country',
+  })
+  @ApiQuery({
+    name: 'favorite[vehicleManufacturer]',
+    example: 'vehicle.manufacturer',
+  })
+  @ApiQuery({
+    name: 'favorite[songName]',
+    example: 'music.songName',
+  })
+  @ApiQuery({
+    name: 'favorite[color]',
+    example: 'color.human',
+  })
+  @ApiQuery({
     name: 'avatar',
     example: 'image.avatar',
   })
   @ApiQuery({
     name: 'jobTitle',
     example: 'person.jobTitle',
+  })
+  @ApiQuery({
+    name: 'streetAddress',
+    example: 'location.streetAddress',
   })
   @ApiQuery({
     name: 'phone',
@@ -114,6 +154,10 @@ export class AppController {
     name: 'fullName',
     example: 'person.fullName',
   })
+  @ApiQuery({
+    name: 'id',
+    example: 'database.mongodbObjectId',
+  })
   generateTemplate(
     @Param('locale') locale: Locale,
     @Param('count', ParseIntPipe) count: number,
@@ -125,9 +169,7 @@ export class AppController {
       _.mapValues(template, (value) => {
         if (_.isPlainObject(value)) return fillTemplate(value);
 
-        const fn: unknown = _.get(faker, value);
-
-        return serializeValue(_.isFunction(fn) ? fn() : value);
+        return getFakerValue(faker, value);
       });
 
     return Array.from({ length: count }).map(() => fillTemplate(template));

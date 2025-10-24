@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { parse } from 'qs';
 import { AppModule } from './app.module';
-import { pkg } from './shared';
+import { version } from './shared';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +15,7 @@ async function bootstrap() {
       new DocumentBuilder()
         .setTitle('Faker API')
         .setDescription('[GitHub](https://github.com/phatdev-hehe/faker-api)')
-        .setVersion(pkg.devDependencies['@faker-js/faker'])
+        .setVersion(version)
         .setLicense('fakerjs.dev API', 'https://fakerjs.dev/api')
         .setExternalDoc('ljharb/qs', 'https://github.com/ljharb/qs')
         .build(),
