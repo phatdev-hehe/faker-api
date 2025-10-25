@@ -1,4 +1,4 @@
-import type { Faker } from '@faker-js/faker';
+import { type Faker } from '@faker-js/faker';
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiParam, ApiQuery } from '@nestjs/swagger';
 import _ from 'lodash';
@@ -29,6 +29,7 @@ export class AppController {
   getLocale(@Param('locale') locale: Locale) {
     const resolveFakerValues = (faker: Faker | any) =>
       mapObjectDeep(faker, (key, value) => {
+        if (excludeKeys.includes(key)) return mapObjectSkip;
         if (_.isPlainObject(value)) value = resolveFakerValues(value);
 
         if (_.isFunction(value))
@@ -38,14 +39,10 @@ export class AppController {
             value = `Function "${key}" requires arguments`;
           }
 
-        return [key, value];
+        return [key, serializeValue(value)];
       });
 
-    return mapObjectDeep(resolveFakerValues(getFaker(locale)), (key, value) => {
-      if (excludeKeys.includes(key)) return mapObjectSkip;
-
-      return [key, serializeValue(value)];
-    });
+    return resolveFakerValues(getFaker(locale));
   }
 
   @Get('api/:locale/:path')
@@ -71,19 +68,19 @@ export class AppController {
     example: 100,
   })
   @ApiQuery({
-    name: 'ip[v6]',
+    name: 'account[more][ipv6]',
     example: 'internet.ipv6',
   })
   @ApiQuery({
-    name: 'ip[v4]',
+    name: 'account[more][ipv4]',
     example: 'internet.ipv4',
   })
   @ApiQuery({
-    name: 'account[jwt]',
+    name: 'account[more][jwt]',
     example: 'internet.jwt',
   })
   @ApiQuery({
-    name: 'account[userAgent]',
+    name: 'account[more][userAgent]',
     example: 'internet.userAgent',
   })
   @ApiQuery({
@@ -173,5 +170,29 @@ export class AppController {
       });
 
     return Array.from({ length: count }).map(() => fillTemplate(template));
+  }
+
+  @Get('string/:locale/:input')
+  @ApiParam({
+    name: 'locale',
+    enum: supportedLocales,
+  })
+  @ApiParam({
+    name: 'input',
+    example: 'Hi, my name is {{person.firstName}} {{person.lastName}}!',
+  })
+  fake(@Param('locale') locale: Locale, @Param('input') input: string) {
+    return getFaker(locale).helpers.fake(input);
+  }
+
+  @Get('definitions/:locale')
+  @ApiParam({
+    name: 'locale',
+    enum: supportedLocales,
+  })
+  getDefinitions(@Param('locale') locale: Locale) {
+    const faker = getFaker(locale);
+
+    faker.definitions; // ??
   }
 }

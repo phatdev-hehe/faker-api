@@ -1,5 +1,4 @@
-import type { Faker } from '@faker-js/faker';
-import { allFakers, allLocales, faker } from '@faker-js/faker';
+import { allFakers, allLocales, faker, type Faker } from '@faker-js/faker';
 import devalue from 'devalue';
 import _ from 'lodash';
 import mapObject from 'map-obj';
@@ -14,6 +13,13 @@ export const mapObjectDeep = _.partialRight(mapObject, { deep: true });
 
 export const excludeKeys = [
   'faker', // self reference
+
+  // https://github.com/faker-js/faker/blob/f81abc77a34d8a2016f06b73ed859fef44446c2d/test/all-functional.spec.ts#L6
+  'rawDefinitions',
+  'definitions',
+  'helpers',
+  // '_randomizer',
+  // '_defaultRefDate',
 ];
 
 export const supportedLocales = _.union(

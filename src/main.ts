@@ -4,7 +4,7 @@ import { parse } from 'qs';
 import { AppModule } from './app.module';
 import { version } from './shared';
 
-async function bootstrap() {
+const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
   app.getHttpAdapter().getInstance().set('query parser', parse);
@@ -22,7 +22,7 @@ async function bootstrap() {
     ),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
-}
+  await app.listen(3000);
+};
 
 bootstrap();
