@@ -1,8 +1,8 @@
-import { type Faker } from '@faker-js/faker';
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { ApiParam, ApiQuery } from '@nestjs/swagger';
-import _ from 'lodash';
-import { mapObjectSkip } from 'map-obj';
+import { type Faker } from "@faker-js/faker";
+import { Controller, Get, Param, ParseIntPipe, Query } from "@nestjs/common";
+import { ApiParam, ApiQuery } from "@nestjs/swagger";
+import _ from "lodash";
+import { mapObjectSkip } from "map-obj";
 import {
   excludeKeys,
   getFaker,
@@ -13,20 +13,20 @@ import {
   type Locale,
   type Locales,
   type Template,
-} from './shared';
+} from "./shared";
 
 @Controller()
 export class AppController {
-  @Get('locales') getLocales(): Locales {
+  @Get("locales") getLocales(): Locales {
     return supportedLocales;
   }
 
-  @Get('locale/:locale')
+  @Get("locale/:locale")
   @ApiParam({
-    name: 'locale',
+    name: "locale",
     enum: supportedLocales,
   })
-  getLocale(@Param('locale') locale: Locale) {
+  getLocale(@Param("locale") locale: Locale) {
     const resolveFakerValues = (faker: Faker | any) =>
       mapObjectDeep(faker, (key, value) => {
         if (excludeKeys.includes(key)) return mapObjectSkip;
@@ -45,120 +45,120 @@ export class AppController {
     return resolveFakerValues(getFaker(locale));
   }
 
-  @Get('api/:locale/:path')
+  @Get("api/:locale/:path")
   @ApiParam({
-    name: 'locale',
+    name: "locale",
     enum: supportedLocales,
   })
   @ApiParam({
-    name: 'path',
-    example: 'color.human',
+    name: "path",
+    example: "color.human",
   })
-  getAPI(@Param('locale') locale: Locale, @Param('path') path: string) {
+  getAPI(@Param("locale") locale: Locale, @Param("path") path: string) {
     return getFakerValue(getFaker(locale), path);
   }
 
-  @Get('template/:locale/:count')
+  @Get("template/:locale/:count")
   @ApiParam({
-    name: 'locale',
+    name: "locale",
     enum: supportedLocales,
   })
   @ApiParam({
-    name: 'count',
+    name: "count",
     example: 100,
   })
   @ApiQuery({
-    name: 'account[more][ipv6]',
-    example: 'internet.ipv6',
+    name: "account[more][ipv6]",
+    example: "internet.ipv6",
   })
   @ApiQuery({
-    name: 'account[more][ipv4]',
-    example: 'internet.ipv4',
+    name: "account[more][ipv4]",
+    example: "internet.ipv4",
   })
   @ApiQuery({
-    name: 'account[more][jwt]',
-    example: 'internet.jwt',
+    name: "account[more][jwt]",
+    example: "internet.jwt",
   })
   @ApiQuery({
-    name: 'account[more][userAgent]',
-    example: 'internet.userAgent',
+    name: "account[more][userAgent]",
+    example: "internet.userAgent",
   })
   @ApiQuery({
-    name: 'account[password]',
-    example: 'internet.password',
+    name: "account[password]",
+    example: "internet.password",
   })
   @ApiQuery({
-    name: 'account[username]',
-    example: 'internet.username',
+    name: "account[username]",
+    example: "internet.username",
   })
   @ApiQuery({
-    name: 'language',
-    example: 'location.language',
+    name: "language",
+    example: "location.language",
   })
   @ApiQuery({
-    name: 'favorite[animalType]',
-    example: 'animal.type',
+    name: "favorite[animalType]",
+    example: "animal.type",
   })
   @ApiQuery({
-    name: 'favorite[book]',
-    example: 'book.title',
+    name: "favorite[book]",
+    example: "book.title",
   })
   @ApiQuery({
-    name: 'favorite[country]',
-    example: 'location.country',
+    name: "favorite[country]",
+    example: "location.country",
   })
   @ApiQuery({
-    name: 'favorite[vehicleManufacturer]',
-    example: 'vehicle.manufacturer',
+    name: "favorite[vehicleManufacturer]",
+    example: "vehicle.manufacturer",
   })
   @ApiQuery({
-    name: 'favorite[songName]',
-    example: 'music.songName',
+    name: "favorite[songName]",
+    example: "music.songName",
   })
   @ApiQuery({
-    name: 'favorite[color]',
-    example: 'color.human',
+    name: "favorite[color]",
+    example: "color.human",
   })
   @ApiQuery({
-    name: 'avatar',
-    example: 'image.avatar',
+    name: "avatar",
+    example: "image.avatar",
   })
   @ApiQuery({
-    name: 'jobTitle',
-    example: 'person.jobTitle',
+    name: "jobTitle",
+    example: "person.jobTitle",
   })
   @ApiQuery({
-    name: 'streetAddress',
-    example: 'location.streetAddress',
+    name: "streetAddress",
+    example: "location.streetAddress",
   })
   @ApiQuery({
-    name: 'phone',
-    example: 'phone.number',
+    name: "phone",
+    example: "phone.number",
   })
   @ApiQuery({
-    name: 'birthdate',
-    example: 'date.birthdate',
+    name: "birthdate",
+    example: "date.birthdate",
   })
   @ApiQuery({
-    name: 'sex',
-    example: 'person.sex',
+    name: "sex",
+    example: "person.sex",
   })
   @ApiQuery({
-    name: 'bio',
-    example: 'person.bio',
+    name: "bio",
+    example: "person.bio",
   })
   @ApiQuery({
-    name: 'fullName',
-    example: 'person.fullName',
+    name: "fullName",
+    example: "person.fullName",
   })
   @ApiQuery({
-    name: 'id',
-    example: 'database.mongodbObjectId',
+    name: "id",
+    example: "database.mongodbObjectId",
   })
   generateTemplate(
-    @Param('locale') locale: Locale,
-    @Param('count', ParseIntPipe) count: number,
-    @Query() template: Template,
+    @Param("locale") locale: Locale,
+    @Param("count", ParseIntPipe) count: number,
+    @Query() template: Template
   ) {
     const faker = getFaker(locale);
 
@@ -172,25 +172,25 @@ export class AppController {
     return Array.from({ length: count }).map(() => fillTemplate(template));
   }
 
-  @Get('string/:locale/:input')
+  @Get("string/:locale/:input")
   @ApiParam({
-    name: 'locale',
+    name: "locale",
     enum: supportedLocales,
   })
   @ApiParam({
-    name: 'input',
-    example: 'Hi, my name is {{person.firstName}} {{person.lastName}}!',
+    name: "input",
+    example: "Hi, my name is {{person.firstName}} {{person.lastName}}!",
   })
-  fake(@Param('locale') locale: Locale, @Param('input') input: string) {
+  fake(@Param("locale") locale: Locale, @Param("input") input: string) {
     return getFaker(locale).helpers.fake(input);
   }
 
-  @Get('definitions/:locale')
+  @Get("definitions/:locale")
   @ApiParam({
-    name: 'locale',
+    name: "locale",
     enum: supportedLocales,
   })
-  getDefinitions(@Param('locale') locale: Locale) {
+  getDefinitions(@Param("locale") locale: Locale) {
     const faker = getFaker(locale);
 
     faker.definitions; // ??
