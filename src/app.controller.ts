@@ -6,9 +6,9 @@ import { mapObjectSkip } from "map-obj";
 import {
   excludeKeys,
   getFaker,
-  getFakerValue,
   mapObjectDeep,
-  serializeValue,
+  safeInvoke,
+  stringify,
   supportedLocales,
   type Locale,
   type Locales,
@@ -32,14 +32,7 @@ export class AppController {
         if (excludeKeys.includes(key)) return mapObjectSkip;
         if (_.isPlainObject(value)) value = resolveFakerValues(value);
 
-        if (_.isFunction(value))
-          try {
-            value = value();
-          } catch {
-            value = `Function "${key}" requires arguments`;
-          }
-
-        return [key, serializeValue(value)];
+        return [key, stringify(safeInvoke(value) ?? value)];
       });
 
     return resolveFakerValues(getFaker(locale));
@@ -55,7 +48,7 @@ export class AppController {
     example: "color.human",
   })
   getAPI(@Param("locale") locale: Locale, @Param("path") path: string) {
-    return getFakerValue(getFaker(locale), path);
+    return getFaker.resolve(getFaker(locale), path);
   }
 
   @Get("template/:locale/:count")
@@ -166,23 +159,23 @@ export class AppController {
       _.mapValues(template, (value) => {
         if (_.isPlainObject(value)) return fillTemplate(value);
 
-        return getFakerValue(faker, value);
+        return getFaker.resolve(faker, value);
       });
 
     return Array.from({ length: count }).map(() => fillTemplate(template));
   }
 
-  @Get("string/:locale/:input")
+  @Get("fake/:locale/:pattern")
   @ApiParam({
     name: "locale",
     enum: supportedLocales,
   })
   @ApiParam({
-    name: "input",
+    name: "pattern",
     example: "Hi, my name is {{person.firstName}} {{person.lastName}}!",
   })
-  fake(@Param("locale") locale: Locale, @Param("input") input: string) {
-    return getFaker(locale).helpers.fake(input);
+  fake(@Param("locale") locale: Locale, @Param("pattern") pattern: string) {
+    return getFaker(locale).helpers.fake(pattern);
   }
 
   @Get("definitions/:locale")

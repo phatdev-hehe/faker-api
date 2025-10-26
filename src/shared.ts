@@ -8,7 +8,6 @@ export type Locales = Locale[];
 export type Template = object;
 
 export const version = "10.1.0";
-export const getFaker = (locale: Locale): Faker => allFakers[locale] ?? faker;
 export const mapObjectDeep = _.partialRight(mapObject, { deep: true });
 
 export const excludeKeys = [
@@ -27,14 +26,30 @@ export const supportedLocales = _.union(
   Object.keys(allLocales)
 ) as Locales;
 
-export const serializeValue = (value: unknown) =>
+export const stringify = (value: Parameters<typeof devalue.stringify>[0]) =>
   typeof value === "bigint" ? devalue.stringify(value) : value;
 
-export const getFakerValue = (faker: Faker, path: any) => {
-  const fn: unknown = _.get(faker, path);
+export const safeInvoke = (value: any) => {
+  let result: any;
+  const isFunction = _.isFunction(value);
 
-  return serializeValue(_.isFunction(fn) ? fn() : path);
+  if (isFunction)
+    try {
+      result = value();
+    } catch {
+      result = `Function [${value.name}] requires arguments`;
+    }
+
+  return result;
 };
+
+export const getFaker = Object.assign(
+  (locale: Locale): Faker => allFakers[locale] ?? faker,
+  {
+    resolve: (faker: Faker, path: Parameters<typeof _.get>[1]) =>
+      stringify(safeInvoke(_.get(faker, path)) ?? path),
+  }
+);
 
 export const getDotPaths = (object: object, excludeKeys?: any[], prefix = "") =>
   Object.entries(object).flatMap(([key, value]) => {
