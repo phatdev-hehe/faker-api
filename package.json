@@ -6,8 +6,8 @@
     "preview": "node dist/main"
   },
   "dependencies": {
-    "@nestjs/common": "^11.1.7",
-    "@nestjs/core": "^11.1.7"
+    "@nestjs/common": "^11.1.8",
+    "@nestjs/core": "^11.1.8"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",

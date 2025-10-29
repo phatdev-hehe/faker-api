@@ -30,7 +30,7 @@ export class AppController {
     const resolveFakerValues = (faker: Faker | any) =>
       mapObjectDeep(faker, (key, value) => {
         if (excludeKeys.includes(key)) return mapObjectSkip;
-        if (_.isPlainObject(value)) value = resolveFakerValues(value);
+        if (_.isPlainObject(value)) return [key, resolveFakerValues(value)];
 
         return [key, stringify(safeInvoke(value) ?? value)];
       });
@@ -61,20 +61,20 @@ export class AppController {
     example: 100,
   })
   @ApiQuery({
-    name: "account[more][ipv6]",
+    name: "account[device][ipv6]",
     example: "internet.ipv6",
   })
   @ApiQuery({
-    name: "account[more][ipv4]",
+    name: "account[device][ipv4]",
     example: "internet.ipv4",
   })
   @ApiQuery({
-    name: "account[more][jwt]",
-    example: "internet.jwt",
+    name: "account[device][userAgent]",
+    example: "internet.userAgent",
   })
   @ApiQuery({
-    name: "account[more][userAgent]",
-    example: "internet.userAgent",
+    name: "account[lastLogin]",
+    example: "date.recent",
   })
   @ApiQuery({
     name: "account[password]",
@@ -113,42 +113,42 @@ export class AppController {
     example: "color.human",
   })
   @ApiQuery({
-    name: "avatar",
-    example: "image.avatar",
-  })
-  @ApiQuery({
     name: "jobTitle",
     example: "person.jobTitle",
   })
   @ApiQuery({
-    name: "streetAddress",
+    name: "contact[streetAddress]",
     example: "location.streetAddress",
   })
   @ApiQuery({
-    name: "phone",
+    name: "contact[phone]",
     example: "phone.number",
   })
   @ApiQuery({
-    name: "birthdate",
-    example: "date.birthdate",
+    name: "personal[avatar]",
+    example: "image.avatar",
   })
   @ApiQuery({
-    name: "sex",
-    example: "person.sex",
-  })
-  @ApiQuery({
-    name: "bio",
+    name: "personal[bio]",
     example: "person.bio",
   })
   @ApiQuery({
-    name: "fullName",
+    name: "personal[birthdate]",
+    example: "date.birthdate",
+  })
+  @ApiQuery({
+    name: "personal[sex]",
+    example: "person.sex",
+  })
+  @ApiQuery({
+    name: "personal[fullName]",
     example: "person.fullName",
   })
   @ApiQuery({
     name: "id",
     example: "database.mongodbObjectId",
   })
-  generateTemplate(
+  getTemplate(
     @Param("locale") locale: Locale,
     @Param("count", ParseIntPipe) count: number,
     @Query() template: Template
@@ -174,7 +174,7 @@ export class AppController {
     name: "pattern",
     example: "Hi, my name is {{person.firstName}} {{person.lastName}}!",
   })
-  fake(@Param("locale") locale: Locale, @Param("pattern") pattern: string) {
+  getFake(@Param("locale") locale: Locale, @Param("pattern") pattern: string) {
     return getFaker(locale).helpers.fake(pattern);
   }
 
