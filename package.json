@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "start": "nest start",
     "build": "nest build",
     "dev": "nest start --watch",
     "debug": "nest start --debug --watch",
